@@ -1,0 +1,15 @@
+<!--not fixed file-->
+
+<form (submit)="onCreateUser(userForm)" #noteForm="ngForm">
+  <input type="text" name="title"
+         ngModel
+         required
+         minlength="3" #email="ngModel">
+  <br />
+  <input type="text" name="title"
+         ngModel
+         required
+         minlength="3" #password="ngModel">
+  <hr />
+  <button type="submit">Login</button>
+</form>
