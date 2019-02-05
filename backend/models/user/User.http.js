@@ -7,16 +7,13 @@ const users = express.Router();
 
 users.get("/users", (req, res, next) => {
   const users = userLogic.getAllUsers();
-  /*
-   * separate between empty data to get data
   var message;
-  if (user.length == 0)
-    message = 'empty database'
-  else
+  if (typeof user === undefined)
     message = 'Users fetched successfully!'
-    */
+  else
+    message = 'empty database'
   res.status(200).json({
-    message: 'Users fetched successfully!',
+    message: message ,
     Users: users
   });
 });
