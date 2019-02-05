@@ -6,7 +6,7 @@ const session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 
 const Product = require('./models/product/product.logic');
-const User = require('./models/user/User.logic');
+const User = require('./models/user/User.http');
 
 const app = express();
 
@@ -36,7 +36,15 @@ app.use(session({
   saveUninitialized: false,
   store: new MongoStore({
     mongooseConnection: db
-  })
+  }),
+  cookie: {
+    //must be served over https
+    secure: false,
+    //valid 3 days.  this is the true expiration setting
+    originalMaxAge: 1000 * 60 * 60 * 24 * 3,
+    //i think there's some bug that specifying this fixes but pretty sure it's deprecated
+    _expires: false
+  }
 }));
 
 app.use('/sn', Product);
