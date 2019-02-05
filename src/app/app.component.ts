@@ -13,7 +13,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.router.navigate([]);
-	alert("Ori")
+	alert("Daimniel")
   }
 
 }
