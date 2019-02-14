@@ -5,7 +5,7 @@ const path = require('path');
 const session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 
-const Product = require('./models/product/product.logic');
+const Product = require('./models/product/product.http');
 const User = require('./models/user/User.http');
 
 const app = express();

@@ -1,37 +1,41 @@
-const express = require('express');
 const mongoose = require('mongoose');
 const Product = require('./product.model');
-const tokenLogic = require('../token/tokens_logic')
 
-const products = express();
 
-products.get("/products", (req, res, next) => {
-  Product.find().then(documents => {
-    res.status(200).json({
-      message: 'Products fetched successfully!',
-      products: documents
+class Product_Logic {
+
+  static getAllProduct() {
+    const promise = Product.find().then(documents => {
+      return documents;
     });
-  });
-});
+    return promise;
+  }
 
-products.post("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin,(req, res, next) => {
-  const product = new Product({
-    name: req.body.name,
-    price: req.body.price
-  });
-
-  product.save().then(createdProduct => {
-    res.status(201).json({//status ok for new resource
-      message: 'Product added successfully',
-      productId: createdProduct._id
+  static createProduct(product) {
+    const theProduct = new Product({
+      name: product.name,
+      price: product.price
     });
-  });
-});
+    return theProduct.save().then(createdProduct => {
+      return createdProduct._id;
+    });
+     
+  }
+
+  static editProduct(productToEdit) {
+    const promise=Product.findByIdAndUpdate(productToEdit.id, { name: productToEdit.name, price: productToEdit.price}, { new: false }).then(result => {
+      return result;
+    });
+    return promise;
+  }
 
 
-products.delete("/products", (req, res, next) => {
-  Product.deleteOne({ _id: req.body.id }).then(result => {
-    res.status(200).json({ message: "Product deleted" });
-  })
-});
-module.exports = products;
+  static deleteProduct(id) {
+    const promise = Product.deleteOne({ _id: id }).then(result => {
+      return "Product deleted";
+    });
+    return promise;
+  }
+
+}
+module.exports = Product_Logic;

@@ -61,24 +61,17 @@ users.post("/users", (req, res, next) => {
   }
 });
 
-function checkSession(req, res, next) {
-  console.log('checkSession   ' + req.session);
-  if (req.session.userToken) {
-    console.log('req.session.userToken');
-    req.body.token = req.session.userToken
-  }
-    return next();
-  }
-
-function requiresLogin(req, res, next) {
-  if (req.body.token) {
-    return next();
-  } else if (req.body.username && req.body.password) {
+// GET route after registering
+users.get('/profile', function (req, res, next) {
+  if (req.body.username && req.body.password) {
     const authnticated = userLogic.chackUser(req.body.username, req.body.password);
     authnticated.then(authUser => {
       if (typeof authUser !== typeof 'srting') {
-        req.body.token = tokenLogic.createToken(authUser).token;
-        return next();
+        const token = tokenLogic.createToken(authUser);
+        return res.status(200).json({
+          message: 'token created',
+          Token: token.token
+        });
       } else {
         var err = new Error(authUser);
         err.status = 400;
@@ -90,11 +83,37 @@ function requiresLogin(req, res, next) {
     err.status = 400;
     return next(err);
   }
-}
+});
 
-// GET route after registering
-users.get('/profile', requiresLogin, function (req, res, next) {
-  return res.json({ massage: 'success login', token: req.body.token });
+users.put("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+  if (req.body.email &&
+    req.body.username) {
+    const user = {
+      email: req.body.email,
+      username: req.body.username
+    };
+    const edited = userLogic.editUser(req.body.user, user, req.body.oldUserName);
+    edited.then(result => {
+      return res.status(200).json({
+        message: 'Updated'
+      });
+    });
+  }
+});
+
+users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+  const editRole = userLogic.editUserRole(req.body.role, req.body.username);
+  editRole.then(result => {
+    if (typeof result !== 'string') {
+      return res.status(200).json({
+        message: 'Updated User Role'
+      });
+    } else {
+      var err = new Error(result);
+      err.status = 400;
+      return next(err);
+    }
+  })
 });
 
 module.exports = users;

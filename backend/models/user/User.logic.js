@@ -35,31 +35,10 @@ class userLogic {
         return new Promise((resolve, reject) => {
           resolve('username dosent exist');
         });
-      /*
-      return bcrypt.compare(pass, theUser.password).then(result=> {
-        return result;
-      }).then(result => {
-        if (result === true)
-          return theUser;
-        else
-          return 'wrong password';
-        });
-        */ return theUser;
+      return theUser;
     }).catch(error => {
       return error;
     });
-      //const promise = User.find({username:username},function (error, user) {
-      //if (error)
-      //  return { log: 'username not exist' };
-      //else {
-      //  bcrypt.compare(pass, user.password, function (err, result) {
-      //    if (result === false)
-      //      return { log: 'wrong password' };
-      //    else
-      //      return { user: user, log: 'password match' };
-      //  });
-      //  }
-      //});
       return promise;
   }
 
@@ -79,5 +58,35 @@ class userLogic {
     return promise;
   }
 
+  static editUser(editor, userToEdit, usernameToEdit) {
+    const promise = this.getUser(usernameToEdit).then(user => {
+      if (typeof user !== 'string') {
+        if (editor.username === usernameToEdit || editor.role === 'Admin') {
+          return User.findByIdAndUpdate(user.id, { email: userToEdit.email, username: userToEdit.username }, { new: false }).then(result => {
+            return result;
+          });
+        } else {
+          return 'Unauthorized!';
+        }
+      } else {
+        return user;
+      }
+    });
+    return promise;
+  }
+
+  static editUserRole(newRole, usernameToEdit) {
+    const promise = this.getUser(usernameToEdit).then(user => {
+      if (typeof user !== 'string') {
+        return User.findByIdAndUpdate(user.id, { role: newRole }, { new: false }).then(result => {
+          return result;
+        });
+      } else {
+        return user;
+      }
+    });
+
+    return promise;
+  }
 }
 module.exports = userLogic;
