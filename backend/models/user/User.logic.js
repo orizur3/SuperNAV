@@ -62,7 +62,7 @@ class userLogic {
     const promise = this.getUser(usernameToEdit).then(user => {
       if (typeof user !== 'string') {
         if (editor.username === usernameToEdit || editor.role === 'Admin') {
-          return User.findByIdAndUpdate(user.id, { email: userToEdit.email, username: userToEdit.username }, { new: false }).then(result => {
+          return User.findByIdAndUpdate(user._id, { email: userToEdit.email, username: userToEdit.username }, { new: false }).then(result => {
             return result;
           });
         } else {

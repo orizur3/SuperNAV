@@ -43,7 +43,7 @@ users.post("/users", (req, res, next) => {
           const token = tokenLogic.createToken(user);
           return res.status(200).json({
             message: message,
-            Token: token.token
+            token: token.token
           });
         } else {
           const err = new Error(message);
@@ -70,7 +70,7 @@ users.get('/profile', function (req, res, next) {
         const token = tokenLogic.createToken(authUser);
         return res.status(200).json({
           message: 'token created',
-          Token: token.token
+          token: token.token
         });
       } else {
         var err = new Error(authUser);
@@ -85,7 +85,7 @@ users.get('/profile', function (req, res, next) {
   }
 });
 
-users.put("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+users.put("/users", tokenLogic.verifyToken, (req, res, next) => {
   if (req.body.email &&
     req.body.username) {
     const user = {
@@ -94,9 +94,16 @@ users.put("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, ne
     };
     const edited = userLogic.editUser(req.body.user, user, req.body.oldUserName);
     edited.then(result => {
-      return res.status(200).json({
-        message: 'Updated'
-      });
+      console.log(result);
+      if (typeof result !== 'string') {
+        return res.status(200).json({
+          message: 'Updated'
+        });
+      } else {
+        var err = new Error(result);
+        err.status = 400;
+        return next(err);
+      }
     });
   }
 });

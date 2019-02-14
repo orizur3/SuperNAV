@@ -7,7 +7,7 @@ var MongoStore = require('connect-mongo')(session);
 
 const Product = require('./models/product/product.http');
 const User = require('./models/user/User.http');
-
+const shoppingCart = require('./models/shoppingCart/shoppingCart.http')
 const app = express();
 
 mongoose.connect("mongodb://localhost:27017/superNav")
@@ -47,6 +47,7 @@ app.use(session({
   }
 }));
 
+app.use('/sn', shoppingCart);
 app.use('/sn', Product);
 app.use('/sn', User);
 module.exports = app;
