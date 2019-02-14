@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Product = require('./product.model');
+const tokenLogic = require('../token/tokens_logic')
 
 const products = express();
 
@@ -13,11 +14,12 @@ products.get("/products", (req, res, next) => {
   });
 });
 
-products.post("/products", (req, res, next) => {
+products.post("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin,(req, res, next) => {
   const product = new Product({
     name: req.body.name,
     price: req.body.price
   });
+
   product.save().then(createdProduct => {
     res.status(201).json({//status ok for new resource
       message: 'Product added successfully',
