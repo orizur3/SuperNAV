@@ -1,9 +1,11 @@
+//http reqire for products
 const express = require('express');
 const tokenLogic = require('../token/tokens_logic')
 const productLogic = require('./product.logic')
 
 const products = express();
 
+// All products
 products.get("/products", (req, res, next) => {
   productLogic.getAllProduct().then(documents => {
     return res.status(200).json({
@@ -13,6 +15,7 @@ products.get("/products", (req, res, next) => {
   });
 });
 
+//create new product
 products.post("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin,(req, res, next) => {
   const product = {
     name: req.body.name,
@@ -26,7 +29,7 @@ products.post("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin,(req, r
   });
 });
 
-
+//delete product
 products.delete("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   
   productLogic.deleteProduct(req.body.id).then(result => {
@@ -34,6 +37,7 @@ products.delete("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req
   })
 });
 
+//update products
 products.put("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const edited = {
     id: req.body.id,

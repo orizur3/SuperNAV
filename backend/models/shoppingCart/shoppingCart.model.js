@@ -1,5 +1,5 @@
+//Shopping cart schema for documents
 const mongoose = require('mongoose');
-//const Product = require('../product/product.model');
 
 const ShoppingCartSchema = new mongoose.Schema({
   theUser: {
@@ -10,7 +10,11 @@ const ShoppingCartSchema = new mongoose.Schema({
   payed: {
     type: Boolean,
     required: true
-  }
+  },
+  cart: [{
+    quntity: { type: String, required: true, default :'1' },
+    products: { type: mongoose.Schema.Types.ObjectId,ref:'product' }
+  }]
 
 });
 

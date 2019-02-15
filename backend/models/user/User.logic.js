@@ -1,9 +1,8 @@
+//user logic for require and response to MongoDB
 const User = require('./User.model');
 const bcrypt = require('bcrypt');
 
 class userLogic {
-
-  constructor() {}
 
   static getAllUsers() {
     const promise= User.find().then(documents => {

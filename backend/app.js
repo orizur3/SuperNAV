@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const path = require('path');
+//const path = require('path');
 const session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 
@@ -10,6 +10,7 @@ const User = require('./models/user/User.http');
 const shoppingCart = require('./models/shoppingCart/shoppingCart.http')
 const app = express();
 
+//connect to Mongo DB
 mongoose.connect("mongodb://localhost:27017/superNav")
   .then(() => {
     console.log('Connected to database!');
@@ -19,6 +20,7 @@ mongoose.connect("mongodb://localhost:27017/superNav")
   });
 var db = mongoose.connection;
 
+// fixed headers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use((req, res, next) => {
@@ -29,6 +31,7 @@ app.use((req, res, next) => {
     'GET, POST, PATCH, PUT, DELETE, OPTIONS');
 next();
 });
+
 //use sessions for tracking logins
 app.use(session({
   secret: 'work hard',
@@ -47,7 +50,9 @@ app.use(session({
   }
 }));
 
+//My Libraries
 app.use('/sn', shoppingCart);
 app.use('/sn', Product);
 app.use('/sn', User);
+
 module.exports = app;

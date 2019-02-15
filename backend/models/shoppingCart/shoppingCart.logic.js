@@ -1,11 +1,27 @@
+//Shopping cart logic for require and response to Mongo DB
 const Cart = require('./shoppingCart.model');
+const Product = require('../product/product.logic');
 
 class cartLogic {
 
-  static getCartProducts(theUserId) {
+  static getAllCarts() {
+    const promise = Cart.find().then(carts => {
+      return carts;
+    }).catch(error => {
+      return error;
+    });
+    return promise;
+  }
 
-    const promise = Cart.find({ theUser: theUserId, payed: false }).then(documents => {
-      return documents;
+  static getCartProducts(theUserId) {
+    const promise = Cart.findOne({ theUser: theUserId, payed: false }).then(cart => {
+      if (cart == null) {
+        return 'create cart'
+      } else {
+        return cart;
+      }
+    }).catch(error => {
+      return error;
     });
     return promise;
   }
@@ -24,6 +40,8 @@ class cartLogic {
     });
     return newCart.save().then(createCart => {
       return createCart;
+    }).catch (error => {
+      return error;
     });
   }
 
@@ -52,6 +70,38 @@ class cartLogic {
       return result;
     });
     return promise;
+  }
+
+  static addProduct(user, productId) {
+    const cart = this.getCartProducts(user._id).then(cart => {
+      if (cart == 'create cart') {
+        const cartCreate = this.createCart(user._id);
+        return cartCreate.then(createCart => {
+          return createCart;
+        });
+      } else {
+        return cart;
+      }
+    });
+
+    const addProduct = cart.then(cart => {
+      if (typeof cart !== typeof 'string') {
+        const product = Product.getProduct(productId);
+        return product.then(theProduct => {
+          if (typeof theProduct !== typeof 'string') {
+            cart.cart.push({ product: theProduct._id, quantity: '1' });
+            return Cart.findByIdAndUpdate(cart._id, { cart: cart.cart }, { new: false }).then(result => {
+              return result;
+            });
+          } else {
+            return theProduct;
+          }
+        });
+      } else {
+        return cart;
+      }
+    });
+    return addProduct;
   }
 }
 

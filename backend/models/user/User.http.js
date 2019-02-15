@@ -1,13 +1,11 @@
-//check logic function
+//http require for users and autentication
 const express = require('express');
 const userLogic = require('./User.logic');
-const Token = require('../token/token_class');
-const User = require('./User.model');
 const tokenLogic = require('../token/tokens_logic')
 
 const users = express.Router();
 
-users.get("/users", (req, res, next) => {
+users.get("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const users = userLogic.getAllUsers();
   users.then(data => {
     var message;
@@ -36,7 +34,7 @@ users.post("/users", (req, res, next) => {
       passwordConf: req.body.passwordConf
     };
     const created = userLogic.create(user);
-
+    //type of Errors is String
     if (typeof created !== typeof 'string') {
       created.then(message => {
         if (message === 'success.') {
@@ -61,7 +59,7 @@ users.post("/users", (req, res, next) => {
   }
 });
 
-// GET route after registering
+// Login
 users.get('/profile', function (req, res, next) {
   if (req.body.username && req.body.password) {
     const authnticated = userLogic.chackUser(req.body.username, req.body.password);
@@ -85,6 +83,7 @@ users.get('/profile', function (req, res, next) {
   }
 });
 
+//Update personal information by user or admin
 users.put("/users", tokenLogic.verifyToken, (req, res, next) => {
   if (req.body.email &&
     req.body.username) {
@@ -108,6 +107,7 @@ users.put("/users", tokenLogic.verifyToken, (req, res, next) => {
   }
 });
 
+// update Roles for admin
 users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const editRole = userLogic.editUserRole(req.body.role, req.body.username);
   editRole.then(result => {

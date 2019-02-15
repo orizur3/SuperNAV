@@ -1,12 +1,25 @@
+//product logic for require and response Mongo DB
 const mongoose = require('mongoose');
 const Product = require('./product.model');
-
 
 class Product_Logic {
 
   static getAllProduct() {
     const promise = Product.find().then(documents => {
       return documents;
+    });
+    return promise;
+  }
+
+  static getProduct(id) {
+    const promise = Product.findOne({ _id: id }).then(product => {
+      if (product === null)
+        return new Promise((resolve, reject) => {
+          resolve('product dosent exist');
+        });
+      return product;
+    }).catch(error => {
+      return error;
     });
     return promise;
   }

@@ -1,3 +1,4 @@
+//token logic for autenticate and create Tokens
 const jwt = require('jsonwebtoken');
 const Token = require('./token_class');
 
