@@ -16,9 +16,9 @@ export class UserService {
   }
   /* not fixed create*/
   createNewUser(user: User) {
-    this.http.post<{ name: string, email: string }>('http://localhost:3000/api/users', user)
+    this.http.post<{ message:string, token:string }>('http://localhost:3000/api/users', user)
       .subscribe((responseData) => {
-        alert(responseData.email + " " + responseData.name);
+        alert(responseData.message + " " + responseData.token);
       });
   }
   /*

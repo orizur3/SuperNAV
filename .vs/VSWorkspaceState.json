@@ -1,9 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src",
-    "\\src\\app"
+    "\\backend",
+    "\\backend\\models"
   ],
-  "SelectedNode": "\\src\\karma.conf.js",
+  "SelectedNode": "\\backend\\models\\authntication.js",
   "PreviewInSolutionExplorer": false
 }
