@@ -7,8 +7,6 @@ class cartLogic {
   static getAllCarts() {
     const promise = Cart.find().then(carts => {
       return carts;
-    }).catch(error => {
-      return error;
     });
     return promise;
   }
@@ -16,19 +14,21 @@ class cartLogic {
   static getCartProducts(theUserId) {
     const promise = Cart.findOne({ theUser: theUserId, payed: false }).then(cart => {
       if (cart == null) {
-        return 'create cart'
+        return Promise.reject('no cart for user');
       } else {
         return cart;
       }
-    }).catch(error => {
-      return error;
     });
     return promise;
   }
 
   static getOrderProduct(theUserId) {
     const promise = Cart.find({ theUser: theUserId, payed: true }).then(documents => {
-      return documents;
+      if (documents.length == 0) {
+        return Promise.reject('no orders for the user');
+      } else {
+        return documents;
+      }
     });
     return promise;
   }
@@ -40,20 +40,14 @@ class cartLogic {
     });
     return newCart.save().then(createCart => {
       return createCart;
-    }).catch (error => {
-      return error;
     });
   }
 
   static getCart(id) {
     const promise = Cart.findOne({ _id: id }).then(theCart => {
       if (theCart === null)
-        return new Promise((resolve, reject) => {
-          resolve('Cart dosent exist');
-        });
+        return new Promise.reject('Cart dosent exist');
       return theCart;
-    }).catch(error => {
-      return error;
     });
     return promise;
   }
@@ -65,43 +59,90 @@ class cartLogic {
     return promise;
   }
 
-  static payed(idCart) {
-    const promise = Cart.findByIdAndUpdate(idCart, { payed: true }, { new: false }).then(result => {
-      return result;
+  static payCart(theUser) {
+    const unpayedCart = this.getCartProducts(theUser);
+    const promise = unpayedCart.then(cart => {
+      let filteredCart;
+      const badProducts = Product.unExist(cart.cart);
+      return badProducts.unexist.then(unexist => {
+        return badProducts.brokenProducts.then(brokenProducts => {
+          if (unexist.length == 0 && brokenProducts.length == 0)
+            return Cart.findByIdAndUpdate(cart._id, { payed: true }, { new: false }).then(result => {
+              return 'payment recieved';
+            });
+          else {
+            unexist.forEach(unexisted => {
+              filteredCart = cart.cart.filter(product => product._id != unexisted._id);
+              cart.totalPrice -= unexisted.price * unexisted.quantity;
+            });
+            brokenProducts.forEach(invalid => {
+              filteredCart = filteredCart.filter(product => product._id != invalid._id);
+            });
+            if (filteredCart.length !== 0)
+              return Cart.findByIdAndUpdate(cart._id, { cart: filteredCart, totalPrice: cart.totalPrice }, { new: true }).then(result => {
+                return result;
+              });
+            else
+              return this.deleteCart(cart._id);
+          }
+        });
+
+      });
     });
     return promise;
   }
-
-  static addProduct(user, productId) {
+  static addProduct(user, newProduct) {
     const cart = this.getCartProducts(user._id).then(cart => {
-      if (cart == 'create cart') {
-        const cartCreate = this.createCart(user._id);
-        return cartCreate.then(createCart => {
-          return createCart;
-        });
-      } else {
-        return cart;
-      }
+      return cart;
+    }).catch(error => {
+      if (error === 'no cart for user')
+        return this.createCart(user._id);
+      return Promise.reject(error);
     });
 
     const addProduct = cart.then(cart => {
-      if (typeof cart !== typeof 'string') {
-        const product = Product.getProduct(productId);
-        return product.then(theProduct => {
-          if (typeof theProduct !== typeof 'string') {
-            cart.cart.push({ product: theProduct._id, quantity: '1' });
-            return Cart.findByIdAndUpdate(cart._id, { cart: cart.cart }, { new: false }).then(result => {
-              return result;
-            });
-          } else {
-            return theProduct;
-          }
+      const product = Product.getProduct(newProduct.id);
+      return product.then(dbProduct => {
+        console.log(dbProduct._id);
+        cart.cart.push({ _id: dbProduct._id, quantity: newProduct.quantity, price: dbProduct.price });
+        cart.totalPrice += newProduct.quantity * dbProduct.price;
+        return Cart.findByIdAndUpdate(cart._id, { totalPrice: cart.totalPrice, cart: cart.cart }, { new: false }).then(result => {
+          return result;
         });
-      } else {
-        return cart;
-      }
+      });
     });
     return addProduct;
+  }
+
+  static removeCartProduct(user, productId) {
+    const cart = this.getCartProducts(user._id).then(cart => {
+      let productToRemove = null;
+      cart.cart.forEach(product => {
+        if (product._id == productId) {
+          productToRemove = product;
+        }
+      });
+      if (productToRemove == null)
+        return Promise.reject('item doesnt exist in cart');
+      const validProduct = Product.getProduct(productId).then(result => {
+        cart.totalPrice -= productToRemove.quantity * productToRemove.price;
+        return cart.totalPrice;
+      }).catch(error => {
+        if (error === 'product dosent exist')
+          cart.totalPrice -= productToRemove.quantity * productToRemove.price;
+        return cart.totalPrice;
+      });
+      return validProduct.then(totalPrice => {
+        const newCart = cart.cart.filter(product => product._id !== productToRemove._id);
+        if (newCart.length > 0)
+          return Cart.findByIdAndUpdate(cart._id, { totalPrice: totalPrice, cart: newCart }, { new: true }).then(result => {
+            return result;
+          });
+        else
+          return this.deleteCart(cart._id);
+      });
+    });
+    return cart;
   }
 }
 

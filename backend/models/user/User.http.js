@@ -16,11 +16,15 @@ users.get("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, ne
     }
     res.status(200).json({
       message: message,
-      Users: data
+      users: data
     });
+  }).catch(error => {
+    var err = new Error(error);
+    err.status = 400;
+    return next(err);
   });
 
-  });
+});
 
 users.post("/users", (req, res, next) => {
   if (req.body.email &&
@@ -33,48 +37,41 @@ users.post("/users", (req, res, next) => {
       password: req.body.password,
       passwordConf: req.body.passwordConf
     };
+    if (req.body.birthday)
+      user.birthday = req.body.birthday;
     const created = userLogic.create(user);
-    //type of Errors is String
-    if (typeof created !== typeof 'string') {
-      created.then(message => {
-        if (message === 'success.') {
-          const token = tokenLogic.createToken(user);
-          return res.status(200).json({
-            message: message,
-            token: token.token
-          });
-        } else {
-          const err = new Error(message);
-          err.status = 400;
-          return next(err);
-        }
+    created.then(theUser => {
+      const token = tokenLogic.createToken(theUser);
+      return res.status(200).json({
+        message: 'sccess!',
+        token: token.token
       });
-    } else {
-      var err = new Error(created);
+    }).catch(error => {
+      var err = new Error(error);
       err.status = 400;
       return next(err);
-    }
+    });
   } else {
-
+    var err = new Error('missing params');
+    err.status = 400;
+    return next(err);
   }
 });
 
 // Login
-users.get('/profile', function (req, res, next) {
+users.post('/profile', function (req, res, next) {
   if (req.body.username && req.body.password) {
-    const authnticated = userLogic.chackUser(req.body.username, req.body.password);
+    const authnticated = userLogic.checkUser(req.body.username, req.body.password);
     authnticated.then(authUser => {
-      if (typeof authUser !== typeof 'srting') {
-        const token = tokenLogic.createToken(authUser);
-        return res.status(200).json({
-          message: 'token created',
-          token: token.token
-        });
-      } else {
-        var err = new Error(authUser);
-        err.status = 400;
-        return next(err);
-      }
+      const token = tokenLogic.createToken(authUser);
+      return res.status(200).json({
+        message: 'token created',
+        token: token.token
+      });
+    }).catch(error => {
+      return res.status(200).json({
+        message: 'Wrong Credentials'
+      });
     });
   } else {
     var err = new Error('missing user or password');
@@ -86,23 +83,22 @@ users.get('/profile', function (req, res, next) {
 //Update personal information by user or admin
 users.put("/users", tokenLogic.verifyToken, (req, res, next) => {
   if (req.body.email &&
-    req.body.username) {
+    req.body.username &&
+    req.body.oldUserName) {
     const user = {
       email: req.body.email,
-      username: req.body.username
+      username: req.body.username,
+      birthday: req.body.birthday
     };
     const edited = userLogic.editUser(req.body.user, user, req.body.oldUserName);
     edited.then(result => {
-      console.log(result);
-      if (typeof result !== 'string') {
-        return res.status(200).json({
-          message: 'Updated'
-        });
-      } else {
-        var err = new Error(result);
-        err.status = 400;
-        return next(err);
-      }
+      return res.status(200).json({
+        message: 'Updated'
+      });
+    }).catch(error => {
+      var err = new Error(error);
+      err.status = 400;
+      return next(err);
     });
   }
 });
@@ -111,16 +107,14 @@ users.put("/users", tokenLogic.verifyToken, (req, res, next) => {
 users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const editRole = userLogic.editUserRole(req.body.role, req.body.username);
   editRole.then(result => {
-    if (typeof result !== 'string') {
-      return res.status(200).json({
-        message: 'Updated User Role'
-      });
-    } else {
-      var err = new Error(result);
-      err.status = 400;
-      return next(err);
-    }
-  })
+    return res.status(200).json({
+      message: 'Updated User Role'
+    });
+  }).catch(error => {
+    var err = new Error(error);
+    err.status = 400;
+    return next(err);
+  });
 });
 
 module.exports = users;

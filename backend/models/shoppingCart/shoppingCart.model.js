@@ -12,9 +12,20 @@ const ShoppingCartSchema = new mongoose.Schema({
     required: true
   },
   cart: [{
-    quntity: { type: String, required: true, default :'1' },
-    products: { type: mongoose.Schema.Types.ObjectId,ref:'product' }
-  }]
+    quantity: { type: Number, required: true, default :'1' },
+    cartProduct: { type: mongoose.Schema.Types.ObjectId, ref: 'product' },
+    price: { type: Number, required: true}
+  }],
+  totalPrice: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  dateCreated: {
+    type: Date,
+    required: true,
+    default: Date.now
+  }
 
 });
 

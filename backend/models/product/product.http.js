@@ -17,36 +17,86 @@ products.get("/products", (req, res, next) => {
 
 //create new product
 products.post("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin,(req, res, next) => {
-  const product = {
-    name: req.body.name,
-    price: req.body.price
-  };
-  productLogic.createProduct(product).then(Id => {
-    return res.status(201).json({//status ok for new resource
-      message: 'Product added successfully',
-      productId: Id
-    });
-  });
+  if (req.body.name &&
+    req.body.price &&
+    req.body.quantity) {
+    const product = {
+      name: req.body.name,
+      price: req.body.price,
+      quantity: req.body.quantity
+    };
+    if (req.body.category)
+      product.category = req.body.category;
+    else
+      product.category = ['general'];
+    productLogic.createProduct(product).then(Id => {
+      return res.status(201).json({//status ok for new resource
+        message: 'Product added successfully',
+        productId: Id
+      });
+    }).catch(error => {
+      const err = new Error(error);
+      err.status = 400;
+      return next(err);
+      });
+  } else {
+    const err = new Error('missing product parameters');
+    err.status = 400;
+    return next(err);
+  }
 });
 
 //delete product
 products.delete("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
-  
-  productLogic.deleteProduct(req.body.id).then(result => {
-    res.status(200).json({ message: "Product deleted" });
-  })
+  if (req.body.productId) {
+    productLogic.deleteProduct(req.body.productId).then(result => {
+      if (result == 1)
+        res.status(200).json({ message: "Product deleted" });
+      else {
+        const err = new Error('Product Id undefined');
+        err.status = 400;
+        return next(err);
+      }
+    }).catch(error => {
+      const err = new Error(error);
+      err.status = 400;
+      return next(err);
+      });
+  } else {
+    const err = new Error('missing productId');
+    err.status = 400;
+    return next(err);
+  }
 });
 
 //update products
 products.put("/products", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
-  const edited = {
-    id: req.body.id,
-    name: req.body.name,
-    price: req.body.price
-  };
-  productLogic.editProduct(edited).then(result => {
-    res.status(200).json({ message: "Product edited" });
-  })
+  if (req.body.productId &&
+    req.body.name &&
+    req.body.price &&
+    req.body.quantity &&
+    req.body.category) {
+
+    const edited = {
+      id: req.body.productId,
+      name: req.body.name,
+      price: req.body.price,
+      quantity: req.body.quantity,
+      category: req.body.category
+    };
+
+    productLogic.editProduct(edited).then(result => {
+      res.status(200).json({ message: "Product edited" });
+    }).catch(error => {
+      const err = new Error(error);
+      err.status = 400;
+      return next(err);
+      });
+  } else {
+    const err = new Error('missing product parameters');
+    err.status = 400;
+    return next(err);
+  }
 });
 
 module.exports = products;

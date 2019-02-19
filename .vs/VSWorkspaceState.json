@@ -2,8 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\backend",
-    "\\backend\\models"
+    "\\backend\\models",
+    "\\backend\\models\\product",
+    "\\backend\\models\\shoppingCart",
+    "\\backend\\models\\user"
   ],
-  "SelectedNode": "\\backend\\models\\authntication.js",
+  "SelectedNode": "\\backend\\app.js",
   "PreviewInSolutionExplorer": false
 }

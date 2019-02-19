@@ -1,3 +1,9 @@
+// implement search service for at least 2 Models
+// implement user parameterized search with at least 3 parameters
+// implement groupe by search
+// use at least one map reduce query
+// Algoritem Hyper Log Log or Count Min Sketch
+// Scraper
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -11,11 +17,12 @@ const shoppingCart = require('./models/shoppingCart/shoppingCart.http')
 const app = express();
 
 //connect to Mongo DB
-mongoose.connect("mongodb://localhost:27017/superNav")
+mongoose.connect("mongodb://localhost:27017/superNav", () => { })
   .then(() => {
     console.log('Connected to database!');
   })
-  .catch(() => {
+  .catch((error) => {
+    console.log('error');
     console.log('Connection to database failed!');
   });
 var db = mongoose.connection;
