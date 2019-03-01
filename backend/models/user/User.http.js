@@ -2,10 +2,10 @@
 const express = require('express');
 const userLogic = require('./User.logic');
 const tokenLogic = require('../token/tokens_logic')
-
 const users = express.Router();
 
-users.get("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+//GET all users
+users.post("/users/all", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const users = userLogic.getAllUsers();
   users.then(data => {
     var message;
@@ -26,19 +26,23 @@ users.get("/users", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, ne
 
 });
 
-users.post("/users", (req, res, next) => {
+//Create new user
+users.post("/users/create", (req, res, next) => {
   if (req.body.email &&
     req.body.username &&
+    req.body.city &&
     req.body.password &&
     req.body.passwordConf) {
     const user = {
       email: req.body.email,
       username: req.body.username,
+      city: req.body.city,
       password: req.body.password,
       passwordConf: req.body.passwordConf
     };
-    if (req.body.birthday)
+    if (req.body.birthday) {
       user.birthday = req.body.birthday;
+    }
     const created = userLogic.create(user);
     created.then(theUser => {
       const token = tokenLogic.createToken(theUser);
@@ -81,30 +85,39 @@ users.post('/profile', function (req, res, next) {
 });
 
 //Update personal information by user or admin
-users.put("/users", tokenLogic.verifyToken, (req, res, next) => {
+users.put("/users/edit_user", tokenLogic.verifyToken, (req, res, next) => {
   if (req.body.email &&
     req.body.username &&
+    req.body.city &&
     req.body.oldUserName) {
     const user = {
       email: req.body.email,
       username: req.body.username,
+      city: req.body.city,
       birthday: req.body.birthday
     };
+    if (req.body.birthday)
+      user.birthday = req.body.birthday; 
     const edited = userLogic.editUser(req.body.user, user, req.body.oldUserName);
     edited.then(result => {
       return res.status(200).json({
-        message: 'Updated'
+        message: 'Updated',
+        token: tokenLogic.createToken(result).token
       });
     }).catch(error => {
       var err = new Error(error);
       err.status = 400;
       return next(err);
     });
+  } else {
+    var err = new Error('missied parameters');
+    err.status = 400;
+    return next(err);
   }
 });
 
 // update Roles for admin
-users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin , (req, res, next) => {  //, tokenLogic.rolesAdmin
   const editRole = userLogic.editUserRole(req.body.role, req.body.username);
   editRole.then(result => {
     return res.status(200).json({
@@ -112,6 +125,22 @@ users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (re
     });
   }).catch(error => {
     var err = new Error(error);
+    err.status = 400;
+    return next(err);
+  });
+});
+
+//GET coordinates
+users.post("/users/location", tokenLogic.verifyToken, (req, res, next) => {
+  const location = userLogic.getLocation(req.body.user.city);
+  location.then(locationJson => {
+    return res.status(200).json({
+      message: 'User location fetched from google',
+      lat: locationJson.latitude,
+      long: locationJson.longitude
+    });
+  }).catch(error => {
+    var err = new Error('Error fetching location from google.');
     err.status = 400;
     return next(err);
   });

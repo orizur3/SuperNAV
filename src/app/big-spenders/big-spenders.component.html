@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div class="w3-container">
+  <table class="w3-table w3-striped">
+    <tr>
+      <th><h4><b>City</b></h4></th>
+      <th><h4><b>How Many Orders</b></h4></th>
+    </tr>
+    <tr *ngFor="let big of bigSpenders">
+      <th>{{big.city}}</th>
+      <th>{{big.result}}</th>
+    </tr>
+  </table>
+</div>
+&nbsp;&nbsp;&nbsp;<button (click)="onHome()" type="submit" class="w3-bar-item w3-button w3-black">Back To Home</button>
+

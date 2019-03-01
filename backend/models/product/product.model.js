@@ -15,9 +15,9 @@ const productSchema = mongoose.Schema({
     required: true,
     defult: 0
   },
-  category: [{
+  category: {
     type: String
-  }]
+  }
 });
 
 module.exports = mongoose.model('product', productSchema);

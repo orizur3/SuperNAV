@@ -1,5 +1,7 @@
 //product logic for require and response Mongo DB
+// Add sales property to each product (update his value in every payment - shopping cart).
 const Product = require('./product.model');
+const ahoCorasick = require('ahocorasick');
 
 class Product_Logic {
 
@@ -10,11 +12,38 @@ class Product_Logic {
     return promise;
   }
 
-  static getProduct(id) {
-    const promise = Product.findOne({ _id: id }).then(product => {
-      if (product === null)
+  static searchStrings(productsName) {
+    return this.getAllProduct().then(documents => {
+      let newString = '';
+      documents.forEach(product => {
+        newString = newString.concat(product.name + ' ' + product.category+' ');
+      });
+      const productNames = [];
+      const ac = new ahoCorasick(productsName);
+      ac.search(newString).forEach(product => {
+        productNames.push(product[1][0])
+      });
+      const promise = Product.find({ name: { $in: productNames } }).then(products => {
+        if (products.length === 0)
+          return Promise.reject('product dosent exist');
+        return products;
+      });
+      return promise;
+    });
+  }
+
+  static getProducts(ids) {
+    const promise = Product.find({ _id: { $in: ids } }).then(products => {
+      if (products.length === 0)
         return Promise.reject('product dosent exist');
-      return product;
+      return products;
+    });
+    return promise;
+  }
+
+  static getProduct(id) {
+    const promise = this.getProducts(id).then(product => {
+      return product[0];
     });
     return promise;
   }

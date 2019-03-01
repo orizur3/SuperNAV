@@ -28,7 +28,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   onSearch(name: HTMLTextAreaElement) {
     this.productService.searchByName(name.value);
-    this.productService.editProduct(this.products[0]._id);
+    //this.productService.editProduct(this.products[0]._id);
     //this.router.navigate(['/home-page']);
   }
 }

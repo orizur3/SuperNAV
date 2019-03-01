@@ -1,12 +1,13 @@
 //user logic for require and response to MongoDB
 const User = require('./User.model');
 const bcrypt = require('bcrypt');
+var NodeGeocoder = require('node-geocoder'); // Google geocoder sevice
 
 class userLogic {
 
   static getAllUsers() {
-    const promise = User.find().then(documents => {
-      return documents;
+    const promise = User.find().then(users => {
+      return users;
     });
     return promise;
   }
@@ -14,12 +15,14 @@ class userLogic {
   static create(userJson) {
     if (userJson.password !== userJson.passwordConf)
       return Promise.reject('Passwords do not match.');
+
     const user = new User({
       email: userJson.email,
       username: userJson.username,
       birthday: userJson.birthday,
+      city: userJson.city,
       password: userJson.password,
-      passwordConf: userJson.passwordConf
+      passwordConf: userJson.passwordConf,
     });
     const promise = user.save().then(createUser => {
       return createUser;
@@ -31,6 +34,15 @@ class userLogic {
     const promise = User.findOne({ username: username }).then(theUser => {
       if (theUser === null)
         return Promise.reject('username dosent exist');
+      return theUser;
+    });
+    return promise;
+  }
+
+  static getUserById(userId) {
+    const promise = User.findById(userId).then(theUser => {
+      if (theUser === null)
+        return Promise.reject('user dosent exist');
       return theUser;
     });
     return promise;
@@ -51,7 +63,7 @@ class userLogic {
   static editUser(editor, userToEdit, usernameToEdit) {
     const promise = this.getUser(usernameToEdit).then(user => {
       if (editor.username === usernameToEdit || editor.role === 'Admin') {
-        return User.findByIdAndUpdate(user._id, { email: userToEdit.email, username: userToEdit.username, birthday: userToEdit.birthday }, { new: false }).then(result => {
+        return User.findByIdAndUpdate(user._id, userToEdit , { new: true }).then(result => {
           return result;
         });
       } else {
@@ -68,6 +80,22 @@ class userLogic {
       });
     });
 
+    return promise;
+  }
+
+  static getLocation(city) {
+    var options = { // options for the geocoder service
+      provider: 'google',
+      apiKey: 'AIzaSyD-x2XCvFbeRPUUIx1yoER2DIJ088GkaWc'
+    };
+    var geocoder = NodeGeocoder(options);
+    const promise = geocoder.geocode(city)
+      .then(res=> {
+        return {
+          latitude: res[0].latitude,
+          longitude: res[0].longitude
+        };
+      });
     return promise;
   }
 }

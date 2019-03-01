@@ -1,4 +1,149 @@
-<p>
-  home-page works!
-</p>
+<!DOCTYPE html>
+<html>
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<body class="w3-content" style="max-width:500%">
+
+  <!-- Sidebar/menu -->
+  <nav class="w3-sidebar w3-bar-block w3-white" style="z-index:3;width:250px" id="mySidebar">
+    <div class="w3-container w3-display-container w3-padding-16">
+      <h3 class="w3-wide"><b>SuperNav</b><img src="https://i.imgur.com/aFvmDfm.jpg" alt="logo" style="width:30%"></h3>
+
+    </div>
+
+    <button (click)="onHome()" class="w3-bar-item w3-button w3-padding">Home</button>
+    <button *ngIf="user==false" (click)="onSignIn()" class="w3-bar-item w3-button w3-padding">Sign In</button>
+    <button *ngIf="user==false" (click)="onLogin()" class="w3-bar-item w3-button w3-padding">Log In</button>
+    <button (click)="onProducts()" class="w3-bar-item w3-button w3-padding">Our Products</button>
+    <button (click)="onShoppingList()" class="w3-bar-item w3-button w3-padding">Our Shopping List</button>
+    <button (click)="onOrders()" class="w3-bar-item w3-button w3-padding">Our Orders</button>
+
+
+  </nav>
+
+  <!-- Top menu on small screens -->
+  <header class="w3-bar w3-top w3-hide-large w3-black w3-xlarge">
+    <div class="w3-bar-item w3-padding-24 w3-wide">LOGO</div>
+    <a href="javascript:void(0)" class="w3-bar-item w3-button w3-padding-24 w3-right" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+  </header>
+
+  <!-- Overlay effect when opening sidebar on small screens -->
+  <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+  <!-- !PAGE CONTENT! -->
+  <div class="w3-main" style="margin-left:250px">
+
+    <!-- Push down content on small screens -->
+    <div class="w3-hide-large" style="margin-top:83px"></div>
+
+    <!-- Top header
+  <header class="w3-container w3-xlarge">
+    <p class="w3-left">Jeans</p>
+    <p class="w3-right">
+      <i class="fa fa-shopping-cart w3-margin-right"></i>
+      <i class="fa fa-search"></i>
+    </p>
+  </header>
+  -->
+    <!-- Image header
+  <div class="w3-display-container w3-container">
+    <img src="https://i.imgur.com/aFvmDfm.jpg" alt="logo" style="width:50%">
+  </div>
+      -->
+
+    <div class="w3-container w3-text-grey" id="jeans">
+      <button (click)="onPie()" class="w3-bar-item w3-button w3-padding">Our Profitable</button>
+      <button (click)="onSpenderPie()" class="w3-bar-item w3-button w3-padding">Our Big Spenders</button>
+    </div>
+    <!-- Product grid -->
+    <div class="w3-row w3-grayscale">
+      <div *ngFor="let product of topProducts" class="w3-col l3 s6">
+        <div class="w3-container">
+
+          <p>{{product.name}}<br><b>{{product.price}}$</b></p>
+        </div>
+      </div>
+      
+
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="w3-padding-64 w3-light-grey w3-small w3-center" id="footer">
+      <div class="w3-row-padding">
+        <div *ngIf="user==false" class="w3-col s4">
+
+          <h4>Sign In</h4>
+          <p>Questions? Go ahead.</p>
+          <form action="/action_page.php" target="_blank">
+            <p><input #username class="w3-input w3-border" type="text" placeholder="UserName" name="UserName" required></p>
+            <p><input #email class="w3-input w3-border" type="text" placeholder="Email" name="Email" required></p>
+            <p><input #password class="w3-input w3-border" type="password" placeholder="Password" name="Message" required></p>
+            <p><input #passwordconf class="w3-input w3-border" type="password" placeholder="PasswordConf" name="Message" required></p>
+            <button (click)="ngHomeSignIn(username,email,password,passwordconf)" type="submit" class="w3-button w3-block w3-black">SignIn</button>
+          </form>
+        </div>
+        <div *ngIf="user==true" class="w3-col s4">
+          <h4>Hello {{username}}</h4>
+        </div>
+        <!-- google maps come here -->
+        <div #gmap class="w3-col s4">
+          <!--<h4></h4>
+  -->
+          <style>
+            /* Set the size of the div element that contains the map */
+            #map {
+              height: 400px; /* The height is 400 pixels */
+              width: 100%; /* The width is the width of the web page */
+            }
+          </style>
+          <!--  <h4>Our Braches</h4>
+    <!--The div element for the map -->
+          <!--Load the API from the specified URL
+  * The async attribute allows the browser to render the page while the API loads
+  * The key parameter will contain your own API key (which is not needed for this tutorial)
+  * The callback parameter executes the initMap() function
+  -->
+          <agm-map  [latitude]="31.970131" [longitude]="34.772044">
+            <agm-marker [latitude]="lat" [longitude]="long"></agm-marker>
+          </agm-map>
+</div>
+        <div class="w3-col s4 w3-justify">
+          <h4>Store</h4>
+          <p><i class="fa fa-fw fa-map-marker"></i> SuperNav</p>
+          <p><i class="fa fa-fw fa-phone"></i> 03-123123123</p>
+          <p><i class="fa fa-fw fa-envelope"></i> sn@supernav.com</p>
+          <h4>We accept</h4>
+          <p><i class="fa fa-fw fa-cc-amex"></i> PayPal</p>
+          <p><i class="fa fa-fw fa-credit-card"></i> Credit Card</p>
+          <br>
+          <i class="fa fa-facebook-official w3-hover-opacity w3-large"></i>
+          <i class="fa fa-instagram w3-hover-opacity w3-large"></i>
+          <i class="fa fa-snapchat w3-hover-opacity w3-large"></i>
+          <i class="fa fa-pinterest-p w3-hover-opacity w3-large"></i>
+          <i class="fa fa-twitter w3-hover-opacity w3-large"></i>
+          <i class="fa fa-linkedin w3-hover-opacity w3-large"></i>
+
+        </div>
+
+      </div>
+
+    </footer>
+
+
+    <!-- End page content -->
+  </div>
+
+
+
+
+
+</body>
+</html>
 

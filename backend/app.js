@@ -1,9 +1,6 @@
-// implement search service for at least 2 Models
-// implement user parameterized search with at least 3 parameters
-// implement groupe by search
-// use at least one map reduce query
-// Algoritem Hyper Log Log or Count Min Sketch
-// Scraper
+// Scraper try spooky or spookyJS
+// use Aho Corasick Algoritem for parallel search
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -14,6 +11,7 @@ var MongoStore = require('connect-mongo')(session);
 const Product = require('./models/product/product.http');
 const User = require('./models/user/User.http');
 const shoppingCart = require('./models/shoppingCart/shoppingCart.http')
+const Scraper = require('./models/testScraper')
 const app = express();
 
 //connect to Mongo DB
@@ -58,6 +56,7 @@ app.use(session({
 }));
 
 //My Libraries
+app.use('/sn', Scraper);
 app.use('/sn', shoppingCart);
 app.use('/sn', Product);
 app.use('/sn', User);

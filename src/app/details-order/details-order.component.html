@@ -1,0 +1,17 @@
+<div class="w3-container">
+  <table class="w3-table w3-striped">
+    <tr>
+      <th><h4><b>Product Name</b></h4></th>
+      <th><h4><b>Price</b></h4></th>
+      <th><h4><b>Quantity</b></h4></th>
+      <th><h4><b>Full Price</b></h4></th>
+    </tr>
+    <tr *ngFor="let product of detailsProducts">
+      <th>{{product.name}}</th>
+      <th>{{product.price}}</th>
+      <th>{{product.quantity}}</th>
+      <th>{{product.quantity*product.price}}</th>
+    </tr>
+  </table>
+  <button (click)="onOrders()" type="submit" class="w3-bar-item w3-button w3-black">Back To Orders</button>
+</div>
