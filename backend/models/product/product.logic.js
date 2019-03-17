@@ -14,21 +14,48 @@ class Product_Logic {
 
   static searchStrings(productsName) {
     return this.getAllProduct().then(documents => {
+      const ac = new ahoCorasick(productsName);
+      let result = Promise.resolve([])
+      let found;
       let newString = '';
       documents.forEach(product => {
-        newString = newString.concat(product.name + ' ' + product.category+' ');
+        newString = newString.concat(product.name + ' ');
       });
       const productNames = [];
-      const ac = new ahoCorasick(productsName);
       ac.search(newString).forEach(product => {
         productNames.push(product[1][0])
       });
-      const promise = Product.find({ name: { $in: productNames } }).then(products => {
-        if (products.length === 0)
-          return Promise.reject('product dosent exist');
-        return products;
+      const productCategory = [];
+      newString = '';
+      documents.forEach(product => {
+        newString = newString.concat(product.category + ' ');
       });
-      return promise;
+      ac.search(newString).forEach(product => {
+        productCategory.push(product[1][0])
+      });
+
+      if (productNames.length !== 0) {
+        result = Product.find({ name: { $regex: productNames.join("|") } });
+      }
+
+      if (productCategory.length !== 0) {
+        found = Product.find({ category: { $regex: productCategory.join("|") } }).then(productsByCategory => {
+          return result.then(products => {
+            productsByCategory.forEach(product => {
+              if (products.length === products.filter(productFilter => productFilter._id !== product._id).length)
+                products.push(product);
+            });
+            return products;
+          });
+        });
+      } else {
+        found = result;
+      }
+      return found.then(products => {
+        if (products.length === 0)
+        return Promise.reject('products doesnt exist');
+        return products;
+      })
     });
   }
 
@@ -70,7 +97,6 @@ class Product_Logic {
 
   static deleteProduct(id) {
     const promise = Product.deleteOne({ _id: id }).then(result => {
-      console.log(result);
       return result.deletedCount;
     });
     return promise;
@@ -89,7 +115,7 @@ class Product_Logic {
           if (error === 'product dosent exist')
             array.push(product);
           return array;
-          });
+        });
         brokenProducts = brokenProducts.then(array => {
           return this.getProduct(product._id).then(dbProduct => {
             return array;
@@ -102,6 +128,17 @@ class Product_Logic {
       });
     });
     return { unexist: unexist, brokenProducts: brokenProducts };
+  }
+
+  static quantityUpdate(cartProducts) {
+    const promises = [];
+    cartProducts.forEach(product => {
+      promises.push(this.getProduct(product._id).then(dbProduct => {
+        dbProduct.quantity -= product.quantity;
+        return this.editProduct(dbProduct);
+      }));
+    });
+    return Promise.all(promises).then(() => { return 'update is success' });
   }
 
 }

@@ -15,7 +15,7 @@ products.get("/products", (req, res, next) => {
   });
 });
 
-products.post('/products/smartSearch', (req, res, next) => {
+products.post('/products/smartSearch', tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   if (req.body.productNames) {
     productLogic.searchStrings(req.body.productNames).then(result => {
       return res.status(200).json({
@@ -126,5 +126,6 @@ products.put("/products/edit_product", tokenLogic.verifyToken, tokenLogic.rolesA
     return next(err);
   }
 });
+
 
 module.exports = products;

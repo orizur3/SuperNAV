@@ -80,7 +80,7 @@ class cartLogic {
         return Cart.findByIdAndUpdate(cart._id, cart, { new: true }).then(result => {
           return result;
         }).then(newCart => {
-          return this.getCartFullProduct(newCart.theUser);
+          return this.getCartFullProduct(newCart._id);
         });
       } else {
         return this.deleteCart(cart._id).then(() => {
@@ -214,10 +214,12 @@ class cartLogic {
       const badProducts = Product.unExist(cart.cart);
       return badProducts.unexist.then(unexist => {
         return badProducts.brokenProducts.then(brokenProducts => {
-          if (unexist.length == 0 && brokenProducts.length == 0)
+          if (unexist.length == 0 && brokenProducts.length == 0) {
+            Product.quantityUpdate(cart.cart);
             return Cart.findByIdAndUpdate(cart._id, { payed: true }, { new: false }).then(result => {
               return 'payment recieved';
             });
+          }
           else {
             filteredCart = cart.cart.filter(product => product._id != unexist[0]._id);
             unexist.forEach(unexisted => {
@@ -229,7 +231,7 @@ class cartLogic {
             });
             if (filteredCart.length !== 0) {
               return Cart.findByIdAndUpdate(cart._id, { cart: filteredCart, totalPrice: cart.totalPrice }, { new: true }).then(result => {
-                return this.getCartFullProduct(result.theUser);
+                return this.getCartFullProduct(result._id);
               });
             }
             else {

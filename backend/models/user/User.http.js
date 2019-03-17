@@ -146,4 +146,8 @@ users.post("/users/location", tokenLogic.verifyToken, (req, res, next) => {
   });
 });
 
+users.post("/users/checkRole", tokenLogic.verifyToken, (req, res, next) => {
+  res.status(200).json({ message: req.body.user.role });
+});
+
 module.exports = users;

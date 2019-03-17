@@ -48,5 +48,14 @@ app.set("port", port);
 const server = http.createServer(app);
 server.on("error", onError);
 server.on("listening", onListening);
+const serverListen=server.listen(port,()=>{
 console.log("listen on port "+port)
-server.listen(port);
+});
+
+const io = require('socket.io').listen(serverListen);
+
+io.on('connection', client=>{
+    client.on('new-product', data=> {
+        client.broadcast.emit('new-product', data);
+    });
+});
