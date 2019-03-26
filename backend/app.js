@@ -1,6 +1,3 @@
-// Scraper try spooky or spookyJS
-// use Aho Corasick Algoritem for parallel search
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -31,7 +28,7 @@ app.use("/", express.static(path.join(__dirname, "superNav")));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept');
+    'Origin, X-Requested-With, Content-Type, Accept,Authorization');
   res.setHeader('Access-Control-Allow-Methods',
     'GET, POST, PATCH, PUT, DELETE, OPTIONS');
   next();

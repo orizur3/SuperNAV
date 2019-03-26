@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../servises/product.service';
-import { Product } from '../models/product.model';
-import { Router } from '@angular/router';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 @Component({
   selector: 'app-product-edit',
@@ -15,9 +13,7 @@ export class ProductEditComponent implements OnInit {
   private productQuantity: number;
   private productCategory: string;
   private token: string;
-  constructor(public ProductService: ProductService,
-    private _route: ActivatedRoute, private router: Router) {
-  }
+  constructor(public ProductService: ProductService, private _route: ActivatedRoute) { }
 
   ngOnInit() {
 
@@ -29,9 +25,6 @@ export class ProductEditComponent implements OnInit {
 
   }
   onSave(name, price, quantity, category) {
-    this.token = localStorage.getItem('token');
-    this.ProductService.editProduct(this.token, this.productId ,name.value, price.value, quantity.value, category.value);
-    this.router.navigate(['/app-our-products']);
-
+    this.ProductService.editProduct(this.productId ,name.value, price.value, quantity.value, category.value);
   }
 }

@@ -5,7 +5,7 @@ const tokenLogic = require('../token/tokens_logic')
 const users = express.Router();
 
 //GET all users
-users.post("/users/all", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+users.get("/users/all", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const users = userLogic.getAllUsers();
   users.then(data => {
     var message;
@@ -73,9 +73,15 @@ users.post('/profile', function (req, res, next) {
         token: token.token
       });
     }).catch(error => {
-      return res.status(200).json({
-        message: 'Wrong Credentials'
-      });
+      if (error == 'username dosent exist' || error == 'wrong password')
+        return res.status(200).json({
+          message: 'Wrong Credentials'
+        });
+      else {
+        var err = new Error(error);
+        err.status = 400;
+        return next(err);
+      }
     });
   } else {
     var err = new Error('missing user or password');
@@ -97,7 +103,7 @@ users.put("/users/edit_user", tokenLogic.verifyToken, (req, res, next) => {
       birthday: req.body.birthday
     };
     if (req.body.birthday)
-      user.birthday = req.body.birthday; 
+      user.birthday = req.body.birthday;
     const edited = userLogic.editUser(req.body.user, user, req.body.oldUserName);
     edited.then(result => {
       return res.status(200).json({
@@ -117,7 +123,7 @@ users.put("/users/edit_user", tokenLogic.verifyToken, (req, res, next) => {
 });
 
 // update Roles for admin
-users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin , (req, res, next) => {  //, tokenLogic.rolesAdmin
+users.get("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {  //, tokenLogic.rolesAdmin
   const editRole = userLogic.editUserRole(req.body.role, req.body.username);
   editRole.then(result => {
     return res.status(200).json({
@@ -131,7 +137,7 @@ users.put("/users/edit_role", tokenLogic.verifyToken, tokenLogic.rolesAdmin , (r
 });
 
 //GET coordinates
-users.post("/users/location", tokenLogic.verifyToken, (req, res, next) => {
+users.get("/users/location", tokenLogic.verifyToken, (req, res, next) => {
   const location = userLogic.getLocation(req.body.user.city);
   location.then(locationJson => {
     return res.status(200).json({
@@ -146,7 +152,7 @@ users.post("/users/location", tokenLogic.verifyToken, (req, res, next) => {
   });
 });
 
-users.post("/users/checkRole", tokenLogic.verifyToken, (req, res, next) => {
+users.get("/users/checkRole", tokenLogic.verifyToken, (req, res, next) => {
   res.status(200).json({ message: req.body.user.role });
 });
 

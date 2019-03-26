@@ -5,16 +5,16 @@ import { ProductService } from '../servises/product.service';
 import { Product } from '../models/product.model';
 import { Subscription } from 'rxjs';
 import { pieProJson } from '../models/piePro';
+import { SharedService } from '../servises/shared.service';
 
 @Component({
-  selector: 'app-pie',
+  selector: 'sn-pie',
   templateUrl: './pie.component.html',
   styleUrls: ['./pie.component.css']
 })
 export class PieComponent implements OnInit {
   user: boolean = false;
-  constructor(private router: Router, private producrService: ProductService) {
-  }
+  constructor(private router: Router, private producrService: ProductService, public sharedService: SharedService) { }
   private productSub: Subscription;
   private data: pieProJson[] = [];
   private topSalesData: number[] = [];
@@ -30,7 +30,7 @@ export class PieComponent implements OnInit {
       var svg = d3.select("p").append("svg")
         .attr("width", 750)
         .attr("height", 750).append('g')
-        .attr('transform', 'translate(' + (700 / 2) + ',' + (700 / 2) + ')');
+        .attr('transform', 'translate(' + (700 / 2) + ',' + (700 /   2) + ')');
       var arc = d3.arc<any>().outerRadius(Math.min(700, 700) / 2).innerRadius(0);
       var pie = d3.pie<any>().value(function (d) { return d.sales; }).sort(null);
       var path = svg.selectAll(".arc").data(pie(this.data)).enter().append("g").attr("class", "arc");
@@ -49,6 +49,7 @@ export class PieComponent implements OnInit {
     }, 500);
   }
   onHome() {
+    this.sharedService.viewNavBar(false);
     this.router.navigate(['/home-page']);
   }
 }

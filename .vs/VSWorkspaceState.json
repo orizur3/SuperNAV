@@ -1,16 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\backend\\models",
-    "\\backend\\models\\product",
-    "\\backend\\models\\shoppingCart",
-    "\\src",
-    "\\src\\app",
-    "\\src\\app\\big-spenders",
-    "\\src\\app\\details-order",
-    "\\src\\app\\orders",
-    "\\src\\app\\our-products"
+    "\\backend",
+    "\\src\\app\\servises"
   ],
-  "SelectedNode": "\\src\\app\\our-products\\our-products.component.ts",
+  "SelectedNode": "\\server.js",
   "PreviewInSolutionExplorer": false
 }

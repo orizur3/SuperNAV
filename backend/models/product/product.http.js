@@ -4,6 +4,10 @@ const tokenLogic = require('../token/tokens_logic')
 const productLogic = require('./product.logic')
 
 const products = express.Router();
+//products.param('id', (req, res, next, id) => {
+//  console.log(id);
+//  next();
+//});
 
 // All products
 products.get("/products", (req, res, next) => {
@@ -23,19 +27,19 @@ products.post('/products/smartSearch', tokenLogic.verifyToken, tokenLogic.rolesA
         found: result
       });
     }).catch(error => {
-      if (error === 'product dosent exist')
+      if (error === 'products doesnt exist') {
         productLogic.getAllProduct().then(documents => {
           return res.status(200).json({
             message: error,
             found: documents
           });
         });
-      else {
+      } else {
         const err = new Error(error);
         err.status = 400;
         return next(err);
       }
-      });
+    });
   } else {
     const err = new Error('missing search array');
     err.status = 400;
@@ -44,7 +48,7 @@ products.post('/products/smartSearch', tokenLogic.verifyToken, tokenLogic.rolesA
 });
 
 //create new product
-products.post("/products/create", tokenLogic.verifyToken, tokenLogic.rolesAdmin,(req, res, next) => {
+products.post("/products/create", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   if (req.body.name &&
     req.body.price &&
     req.body.quantity) {
@@ -66,7 +70,7 @@ products.post("/products/create", tokenLogic.verifyToken, tokenLogic.rolesAdmin,
       const err = new Error(error);
       err.status = 400;
       return next(err);
-      });
+    });
   } else {
     const err = new Error('missing product parameters');
     err.status = 400;
@@ -75,9 +79,9 @@ products.post("/products/create", tokenLogic.verifyToken, tokenLogic.rolesAdmin,
 });
 
 //delete product
-products.put("/products/delete", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
-  if (req.body.productId) {
-    productLogic.deleteProduct(req.body.productId).then(result => {
+products.delete("/products/delete/:id?", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+  if (req.query.id) {
+    productLogic.deleteProduct(req.query.id).then(result => {
       if (result == 1)
         res.status(200).json({ message: "Product deleted" });
       else {
@@ -89,7 +93,7 @@ products.put("/products/delete", tokenLogic.verifyToken, tokenLogic.rolesAdmin, 
       const err = new Error(error);
       err.status = 400;
       return next(err);
-      });
+    });
   } else {
     const err = new Error('missing productId');
     err.status = 400;
@@ -119,13 +123,12 @@ products.put("/products/edit_product", tokenLogic.verifyToken, tokenLogic.rolesA
       const err = new Error(error);
       err.status = 400;
       return next(err);
-      });
+    });
   } else {
     const err = new Error('missing product parameters');
     err.status = 400;
     return next(err);
   }
 });
-
 
 module.exports = products;

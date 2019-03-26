@@ -113,7 +113,6 @@ class cartLogic {
       sortJsonArray(results, 'value', 'des');
       return results;
     }).then(sortedResults => {
-      console.log(sortedResults);
       const ids = [];
       sortedResults.forEach(res => {
         ids.push(res._id);

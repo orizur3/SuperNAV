@@ -1,8 +1,3 @@
-//const csv = require('csv-parser')
-//const fs = require('fs')
-//const results = [];
-//const mongoose = require('mongoose')
-
 var csv = require('csv');
 const Product = require('./models/product/product.model');
 const mongoose = require('mongoose');

@@ -14,6 +14,7 @@ export class ShoppingCartEditComponent implements OnInit {
   private shoppingProductQuantity: number;
   private shoppingProductCategory: string;
   private token: string;
+
   constructor(private ShoppingCart: ShoppingCart,private _route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
@@ -23,11 +24,13 @@ export class ShoppingCartEditComponent implements OnInit {
     this.shoppingProductQuantity = this._route.snapshot.params['shopping.quantity'];
     this.shoppingProductCategory = this._route.snapshot.params['shopping.category'];
   }
-  onSave(quantity) {
-    this.token = localStorage.getItem('token');
-    this.ShoppingCart.editProduct(this.token, this.shoppingProductId, this.shoppingProductName, this.shoppingProductPrice, quantity.value, this.shoppingProductCategory);
 
-    this.router.navigate(['/app-shopping-cart']);
+  onSave(quantity) {
+    if (quantity.value > 0)
+      this.ShoppingCart.editProduct(this.shoppingProductId, this.shoppingProductName, this.shoppingProductPrice, quantity.value, this.shoppingProductCategory);
+    else
+      this.ShoppingCart.deleteProduct(this.shoppingProductId);
+    this.router.navigate(['/shopping-cart']);
   }
 
 }

@@ -4,6 +4,8 @@ import { Product } from '../models/product.model';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ShoppingCart } from '../servises/shoppingcart.service';
+import { Socket } from 'ngx-socket-io';
+import { UserService } from '../servises/user.service';
 
 @Component({
   selector: 'app-our-products',
@@ -13,26 +15,34 @@ import { ShoppingCart } from '../servises/shoppingcart.service';
 export class OurProductsComponent implements OnInit {
   private ourProducts: Product[] = [];
   private productSub: Subscription;
+  private connectSub: Subscription;
+  private users: Subscription;
   user: boolean = false;
+  admin: boolean = false;
   smartsearch: string = "";
-  arraySmart: Product[] = [];
-  name: string;
-  token: string;
-  price: number;
-  quantity: number;
-  constructor(private ShoppingCart: ShoppingCart,private producrService: ProductService, private router: Router) { }
+  name: string = "";
+  minPrice: number;
+  maxPrice: number;
+  minQuantity: number;
+  maxQuantity: number;
+
+  constructor(private UserService: UserService, private ShoppingCart: ShoppingCart, private producrService: ProductService, private router: Router, public socket: Socket) {
+  this.socket.on('new-product', function(product){
+      producrService.addProduct(product);
+    });
+   }
 
   ngOnInit() {
-    this.quantity = null;
-    this.name = "";
-    if (localStorage.getItem('token') != null)
-      this.user = true;
     this.producrService.getProducts();
     this.productSub = this.producrService.getProductUpdateListener().subscribe((productData: Product[]) => {
       this.ourProducts = productData;
     });
-
+    this.connectSub = this.UserService.getUserRoleListener().subscribe((connect: boolean[]) => {
+      this.user = connect[0];
+      this.admin = connect[1];
+    });
   }
+
   onMultiSearch() {
     this.producrService.getProducts();
     setTimeout(() => {
@@ -40,66 +50,44 @@ export class OurProductsComponent implements OnInit {
         this.ourProducts = this.ourProducts.filter(res => {
           return res.name.toLocaleLowerCase().match(this.name.toLocaleLowerCase());
         });
-      if (this.price != null)
+      if (this.minPrice != null)
         this.ourProducts = this.ourProducts.filter(res => {
-          return res.price == this.price.valueOf();
+          return res.price >= this.minPrice.valueOf();
         });
-      if (this.quantity != null)
+      if (this.maxPrice != null)
         this.ourProducts = this.ourProducts.filter(res => {
-          return res.quantity == this.quantity.valueOf();
+          return res.price < this.maxPrice.valueOf();
         });
-    }, 10);
+      if (this.minQuantity != null)
+        this.ourProducts = this.ourProducts.filter(res => {
+          return res.quantity >= this.minQuantity.valueOf();
+        });
+      if (this.maxQuantity != null)
+        this.ourProducts = this.ourProducts.filter(res => {
+          return res.quantity < this.maxQuantity.valueOf();
+        });
+    }, 100);
   }
 
-
-  onLogin() {
-    this.router.navigate(['/login']);
-  }
-  onSignIn() {
-    this.router.navigate(['/sign']);
-  }
-
-  onHome() {
-    this.router.navigate(['/home-page']);
-  }
-  onPie() {
-    this.router.navigate(['/app-pie']);
-  }
-  onProducts() {
-    this.router.navigate(['/app-our-products']);
-  }
-  onShoppingList() {
-    this.router.navigate(['/app-shopping-cart']);
-  }
   onDelete(id: string) {
-    this.token = localStorage.getItem('token');
-    this.producrService.deleteProduct(this.token,id);
+    this.producrService.deleteProduct(id);
   }
-  onEdit(id: string, name: string, price: number, quantity: number, category: string) {
-    this.token = localStorage.getItem('token');
-    this.router.navigate(['/app-product-edit']);
-    //this.producrService.editProduct(this.token, id, name,price, quantity, category);
-  }
+
   onCreate() {
-    this.router.navigate(['/app-product-create']);
+    this.router.navigate(['/product-create']);
   }
-  onAddToCart(productId,name,price,productQuantity,category) {
-   this.token = localStorage.getItem('token');
-    this.ShoppingCart.addProduct(this.token, productId, name, price, productQuantity, category);
+
+  onAddToCart(productId, name, price, category) {
+    this.ShoppingCart.addProduct(productId, name, price, category);
   }
+
   onSmartSearch() {
     if (this.smartsearch === "") {
       alert("Null Search");
       this.producrService.getProducts();
     }
     else {
-    this.producrService.smartSearch(this.smartsearch.split(" "));
+      this.producrService.smartSearch( this.smartsearch.split(" "));
     }
-    //setTimeout(() => {
-      //this.producrService.getsmartSearchUpdateListener().subscribe((result: Product[]) => {
-      //  this.ourProducts  =result;
-      //});
-      
-  //  }, 500);
   }
 }

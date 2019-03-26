@@ -9,8 +9,8 @@ class tokenLogic {
   }
 
   static verifyToken(req, res, next) {
-    if (req.body.token) {
-      req.body.user = jwt.verify(req.body.token, 'muli_maniak').user;
+    if (req.headers.authorization) {
+      req.body.user = jwt.verify(req.headers.authorization, 'muli_maniak').user;
       return next();
     } else {
       const err = new Error('create Token');

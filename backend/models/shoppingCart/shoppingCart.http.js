@@ -6,7 +6,7 @@ const tokenLogic = require('../token/tokens_logic')
 const carts = express.Router();
 
 //get all Carts and Orders from all users 
-carts.post("/shoppingCarts", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
+carts.get("/shoppingCarts", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
   const allUserCart = cartLogic.getAllCarts();
   allUserCart.then(Carts => {
     var message;
@@ -27,7 +27,7 @@ carts.post("/shoppingCarts", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req
 });
 
 //get ShoppingCart by user (ID)
-carts.post("/myShoppingCart", tokenLogic.verifyToken, (req, res, next) => {
+carts.get("/myShoppingCart", tokenLogic.verifyToken, (req, res, next) => {
   const cartProducts = cartLogic.getCartProducts(req.body.user._id);
   cartProducts.then(data => {
     cartLogic.getCartFullProduct(data._id).then(data => {
@@ -50,7 +50,7 @@ carts.post("/myShoppingCart", tokenLogic.verifyToken, (req, res, next) => {
 });
 
 //get Orders by user (ID) 
-carts.post("/myOrders", tokenLogic.verifyToken, (req, res, next) => {
+carts.get("/myOrders", tokenLogic.verifyToken, (req, res, next) => {
   const orderList = cartLogic.getOrderProduct(req.body.user._id);
   orderList.then(orders => {
     const orderListForUser = [];
@@ -142,7 +142,7 @@ carts.put("/myShoppingCart/removeProduct", tokenLogic.verifyToken, (req, res, ne
 });
 
 // payment for the user cart 
-carts.put('/myShoppingCart/payment', tokenLogic.verifyToken, (req, res, next) => {
+carts.get('/myShoppingCart/payment', tokenLogic.verifyToken, (req, res, next) => {
   const payment = cartLogic.payCart(req.body.user._id);
   payment.then(result => {
     if (result === 'payment recieved' || result === 'Cart deleted') {
@@ -220,15 +220,10 @@ carts.get("/bigSpenders", (req, res, next) => {
   });
 });
 
-module.exports = carts;
-
-//after deleting product from the cart, if the cart is empty delete the cart too!!
-//TEST!!!!  -   Cart deleting is necessary at this point, cart deleting will be with deleting last product
-carts.delete("/shoppingCarts/delete", (req, res, next) => {
-  if (req.body.cartId) {
-    const cart = cartLogic.getCart(req.body.cartId);
-    cart.then(cart => {
-      const deleteOne = cartLogic.deleteCart(req.body.cartId);
+carts.delete("/myShoppingCarts/delete", tokenLogic.verifyToken, (req, res, next) => {
+  const cart = cartLogic.getCartProducts(req.body.user._id);
+  cart.then(cart => {
+    const deleteOne = cartLogic.deleteCart(cart._id);
       deleteOne.then(message => {
         return res.status(200).json({
           message: message
@@ -239,21 +234,6 @@ carts.delete("/shoppingCarts/delete", (req, res, next) => {
       err.status = 400;
       return next(err);
     });
-  } else {
-    const err = new Error('missing cartId');
-    err.status = 400;
-    return next(err);
-  }
 });
 
-//TEST!!!!  -   Cart creation is unecessary at this point, cart creation will be with product input.
-//carts.post("/shoppingCarts/create", tokenLogic.verifyToken, tokenLogic.rolesAdmin, (req, res, next) => {
-//  const newCart = cartLogic.createCart(req.body.user._id);
-//  newCart.then(cart => {
-//    return res.status(200).json({
-//      message: 'Cart Fetched',
-//      cartProducts: cart
-//    });
-//  });
-//});
-
+module.exports = carts;

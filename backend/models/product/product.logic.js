@@ -53,7 +53,7 @@ class Product_Logic {
       }
       return found.then(products => {
         if (products.length === 0)
-        return Promise.reject('products doesnt exist');
+          return Promise.reject('products doesnt exist');
         return products;
       })
     });

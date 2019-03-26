@@ -1,30 +1,4 @@
-<!DOCTYPE html>
-<html>
-<title>W3.CSS Template</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<body class="w3-content" style="max-width:500%">
-  <!-- Sidebar/menu -->
-  <nav class="w3-sidebar w3-bar-block w3-white" style="z-index:3;width:250px" id="mySidebar">
-    <div class="w3-container w3-display-container w3-padding-16">
-      <h3 class="w3-wide"><b>SuperNav</b><img src="https://i.imgur.com/aFvmDfm.jpg" alt="logo" style="width:30%"></h3>
-    </div>
-    <button (click)="onHome()" class="w3-bar-item w3-button w3-padding">Home</button>
-    <button *ngIf="user==false" (click)="onSignIn()" class="w3-bar-item w3-button w3-padding">Sign In</button>
-    <button *ngIf="user==false" (click)="onLogin()" class="w3-bar-item w3-button w3-padding">Log In</button>
-    <button (click)="onProducts()" class="w3-bar-item w3-button w3-padding">Our Products</button>
-    <button (click)="onShoppingList()" class="w3-bar-item w3-button w3-padding">Our Shopping List</button>
-  </nav>
-  <!-- Top menu on small screens -->
-  <header class="w3-bar w3-top w3-hide-large w3-black w3-xlarge">
-    <div class="w3-bar-item w3-padding-24 w3-wide">LOGO</div>
-    <a href="javascript:void(0)" class="w3-bar-item w3-button w3-padding-24 w3-right" onclick="w3_open()"><i class="fa fa-bars"></i></a>
-  </header>
+<sn-header></sn-header>
   <!-- Overlay effect when opening sidebar on small screens -->
   <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
   <!-- !PAGE CONTENT! -->
@@ -34,21 +8,32 @@
     <div class="w3-container w3-text-grey" id="jeans">
       <h1 class="w3-bar-item w3-text-grey w3-padding">Our Shopping List</h1>
     </div>
-    <div class="w3-container">
-      <table class="w3-table w3-striped">
-        <tr>
-          <th><h4><b>Date Created</b></h4></th>
-          <th><h4><b>Total Price</b></h4></th>
-          <th><h4><b>Products</b></h4></th>
-        </tr>
-        <tr *ngFor="let order of orders">
-          <th>{{order.dateCreated}}</th>
-          <th>{{order.totalPrice}}</th>
-          <th *ngFor="let o of order.cart">{{o.name}}</th>
-        </tr>
-      </table>
-    </div>
-  </div>
-</body>
-</html>
+    <mat-accordion *ngFor="let order of orders">
+      <mat-expansion-panel (opened)="panelOpenState = true"
+                           (closed)="panelOpenState = false">
+        <mat-expansion-panel-header class="w3-button w3-block w3-left-align w3-light-grey">
+          <mat-panel-title>
+            {{order.dateCreated}}
+          </mat-panel-title>
+          <mat-panel-description>
+            {{order.totalPrice}}
+          </mat-panel-description>
+        </mat-expansion-panel-header>
 
+        <table class="w3-table ">
+          <tr>
+            <th><h4><b>Product Name</b></h4></th>
+            <th><h4><b>Product Price</b></h4></th>
+            <th><h4><b>Product Quantity</b></h4></th>
+            <th><h4><b>Product Category</b></h4></th>
+          </tr>
+          <tr *ngFor="let o of order.cart">
+            <th><h4>{{o.name}}</h4></th>
+            <th><h4>{{o.price}}</h4></th>
+            <th><h4>{{o.quantity}}</h4></th>
+            <th><h4>{{o.category}}</h4></th>
+          </tr>
+        </table>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>

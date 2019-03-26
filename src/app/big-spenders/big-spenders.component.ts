@@ -3,6 +3,7 @@ import { ShoppingCart } from '../servises/shoppingcart.service';
 import { bigSpender } from '../models/bigSpender';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { SharedService } from '../servises/shared.service';
 
 @Component({
   selector: 'app-big-spenders',
@@ -12,7 +13,7 @@ import { Router } from '@angular/router';
 export class BigSpendersComponent implements OnInit {
   private bigSpenders: bigSpender[] = [];
   private bigSpendersSub: Subscription;
-  constructor(private ShoppingCart: ShoppingCart, private router: Router) { }
+  constructor(private ShoppingCart: ShoppingCart, private router: Router, public sharedService: SharedService) { }
 
   ngOnInit() {
     this.ShoppingCart.bigSpender();
@@ -26,6 +27,7 @@ export class BigSpendersComponent implements OnInit {
 
   }
   onHome() {
+    this.sharedService.viewNavBar(false);
     this.router.navigate(['/home-page']);
   }
  
